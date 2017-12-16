@@ -83,8 +83,8 @@ def plot_pattern(U, V, tu, tv, h, dt, filled=True):
     fig, axes = plt.subplots(1, 2, figsize=(14, 7))
 
     extent = [x[0], x[-1], y[0], y[-1]]
-    levelsU = np.linspace(np.amin(U), np.amax(U), 20)
-    levelsV = np.linspace(np.amin(V), np.amax(V), 20)
+    levelsU = np.linspace(np.amin(U[tu]), np.amax(U[tu]), 20)
+    levelsV = np.linspace(np.amin(V[tv]), np.amax(V[tv]), 20)
 
     if not filled and tu != 0 and tv != 0:
         csU = axes[0].contour(X, Y, U[tu], levels=levelsU, extent=extent, cmap=plt.cm.coolwarm)
@@ -98,6 +98,48 @@ def plot_pattern(U, V, tu, tv, h, dt, filled=True):
 
     axes[0].set_title('U at n = %s, time = %.2f sec' % (tu, tu * dt), fontsize=16)
     axes[1].set_title('V at n = %s, time = %.2f sec' % (tv, tv * dt), fontsize=16)
+
+    axes[0].set_aspect('equal')
+    axes[1].set_aspect('equal')
+
+    fig.tight_layout()
+
+    plt.show()
+
+
+def plot_init(U0, V0, h, filled=True):
+    """
+    Show contour plots of u and v at the starting time
+    :param U0:      initial state of u in the Ny by Nx grid for Nt time steps [ndarray of shape Nt X Ny X Nx]
+    :param V0:      initial state of v in the Ny by Nx grid for Nt time steps [ndarray of shape Nt X Ny X Nx]
+    :param h:       space step size [float]
+    :param filled:  whether or not to plot filled contours [boolean]
+    :return:        None
+    """
+    Nx, Ny = U0.shape[1], U0.shape[0]
+
+    # 2D meshgrid setup
+    x = np.linspace(0, (Nx - 1) * h, Nx)
+    y = np.linspace(0, (Ny - 1) * h, Ny)
+    X, Y = np.meshgrid(x, y)
+
+    # Contour plot
+    fig, axes = plt.subplots(1, 2, figsize=(14, 7))
+
+    extent = [x[0], x[-1], y[0], y[-1]]
+
+    if not filled:
+        csU = axes[0].contour(X, Y, U0, extent=extent, cmap=plt.cm.coolwarm)
+        csV = axes[1].contour(X, Y, V0, extent=extent, cmap=plt.cm.coolwarm)
+    else:
+        csU = axes[0].contourf(X, Y, U0, extent=extent, cmap=plt.cm.coolwarm)
+        csV = axes[1].contourf(X, Y, V0, extent=extent, cmap=plt.cm.coolwarm)
+
+    fig.colorbar(csU, ax=axes[0], shrink=0.8)
+    fig.colorbar(csV, ax=axes[1], shrink=0.8)
+
+    axes[0].set_title('Initial U', fontsize=16)
+    axes[1].set_title('Initial V', fontsize=16)
 
     axes[0].set_aspect('equal')
     axes[1].set_aspect('equal')
@@ -212,3 +254,5 @@ def animate_pattern_2(U, V, h, dt, Nsteps, Nout):
     # plt.show()
 
     return ani
+
+
