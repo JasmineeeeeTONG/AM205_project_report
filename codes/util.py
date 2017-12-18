@@ -59,6 +59,60 @@ def Laplace_matrix_sparse(Ny, Nx):
 
     return D2
 
+def plot_norm_evolution(time_range, U_norm_arr, V_norm_arr, r, time_steps, end_t):
+	"""
+    Plot the U and V matrices' Frobenius norms' evolution over time
+    :param time_range:	time range of the entire time duration for pattern formation [ndarray of shape (Nt,)]
+    :param U_norm_arr:  1D array of the Frobenius norms of u over time [ndarray of shape (Nt,)]
+    :param V_norm_arr:  1D array of the Frobenius norms of v over time [ndarray of shape (Nt,)]
+    :param r:      		the denominator of the time steps for the cutoff point upto which to plot the norm's evolution [int]
+    :param time_steps:	number of time steps = int(end_t/dt) [int]
+    :param end_t:		the end point time of the evolution [int]
+    :return:        	None
+    """
+	fig, axes = plt.subplots(1, 2, figsize = (14, 6))
+	cutoff = int(time_steps/r)
+	axes[0].plot(time_range[:cutoff], U_norm_arr[:cutoff], 'b-')
+	axes[0].set_title('Frobenius_norm(U - np.mean(U)) \n over time (t <= {})'.format(int(end_t/r)), fontsize=16)
+	axes[0].set_xlabel('Time (sec)', fontsize=16)
+	axes[1].plot(time_range[:cutoff], V_norm_arr[:cutoff], 'r-')
+	axes[1].set_title('Frobenius_norm(V - np.mean(V)) \n over time (t <= {})'.format(int(end_t/r)), fontsize=16)
+	axes[1].set_xlabel('Time (sec)', fontsize=16)
+	plt.show()
+
+def plot_pattern_evolution(M, h, dt, time_steps, name, r, Nout):
+    """
+    Plot a series of the Nout states of the pattern (M) over time before some cutoff point = int(time_steps/r)
+    :param M:           solution of u or v in the Ny by Nx grid for Nt time steps [ndarray of shape Nt X Ny X Nx]
+    :param h:           space step size [float]
+    :param dt:          time step size [float]
+    :param time_steps:  number of time steps = int(end_t/dt) [int]
+    :param name:        name of the pattern (U or V)
+    :param r:           the denominator of the time steps for the cutoff point upto which to plot the norm's evolution [int]
+    :param Nout:        number of pattern figures to output [int]
+    :return:            None
+    """
+    Nx, Ny = M.shape[2], M.shape[1]
+    t_size = int(time_steps/r/Nout) # the length of time between 2 output plots
+    t_points = [i * t_size for i in np.arange(Nout)] # time points when to output a plot
+    fig, axes = plt.subplots(1, Nout, figsize = (24, int(24/Nout)))
+    for i, ax in enumerate(axes):
+        t = t_points[i]
+        
+        # 2D meshgrid setup
+        x = np.linspace(0, (Nx - 1) * h, Nx)
+        y = np.linspace(0, (Ny - 1) * h, Ny)
+        X, Y = np.meshgrid(x, y)
+
+        if np.amin(M[t]) != np.amax(M[t]):
+            levelsM = np.linspace(np.amin(M[t]), np.amax(M[t]), 20)
+            ax.contourf(X, Y, M[t], levels=levelsM, cmap=plt.cm.coolwarm)
+        else:
+            ax.contourf(X, Y, M[t], cmap=plt.cm.coolwarm)
+        ax.set_title('{} (t = {})'.format(name, (dt * t)))
+        ax.set_aspect('equal')
+    
+    plt.show()
 
 def plot_pattern(U, V, tu, tv, h, dt, filled=True):
     """
@@ -104,6 +158,35 @@ def plot_pattern(U, V, tu, tv, h, dt, filled=True):
 
     fig.tight_layout()
 
+    plt.show()
+
+
+def plot_pattern_end_states(end_states, titles, h):
+    """
+    Plot the initial condition and different ending state with different parameter setup
+    :param end_states:  ending state patterns [ndarray of shape n X Ny X Nx], 
+                        where n is the number of different parameter setups
+    :param titles:      a list titles for each parameter setup [list of size n]
+    :param h:           space step size [float]
+    :return:            None
+    """
+    n_axes = end_states.shape[0]
+    Nx, Ny = end_states.shape[2], end_states.shape[1]
+    fig, axes = plt.subplots(1, n_axes, figsize = (30, int(30/n_axes)))
+    
+    for i, ax in enumerate(axes):
+        # 2D meshgrid setup
+        x = np.linspace(0, (Nx - 1) * h, Nx)
+        y = np.linspace(0, (Ny - 1) * h, Ny)
+        X, Y = np.meshgrid(x, y)
+        
+        if np.amin(end_states[i]) != np.amax(end_states[i]):
+            levels = np.linspace(np.amin(end_states[i]), np.amax(end_states[i]), 20)
+            ax.contourf(X, Y, end_states[i], levels=levels, cmap=plt.cm.coolwarm)
+        else:
+            ax.contourf(X, Y, end_states[i], cmap=plt.cm.coolwarm)
+        ax.set_title(titles[i])
+        ax.set_aspect('equal')
     plt.show()
 
 
