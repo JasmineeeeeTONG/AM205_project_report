@@ -2,7 +2,7 @@
 
 This is the project repo for Harvard AM205 - Advanced Scientific Computing: Numerical Methods (Fall 2017). 
 
-The results are also published [here](https://jasmineeeeetong.github.io/AM205_17Fall_Project_Publish/).
+The results are also published [here](https://jasmineeeeetong.github.io/AM205_project_publish/).
 
 - **Experiments**: python notebooks and codes
 - **Final_Report**: implementation, analysis and results interpretation in PDF
